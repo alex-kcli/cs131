@@ -1,0 +1,127 @@
+
+========= plain_kenken Performance Report =========
+
+
+statistics, fd_set_vector_max(255), kenken_testcase_small(N,C), kenken(N,C,T), statistics.
+
+   user   time       0.000 sec
+   system time       0.000 sec
+   cpu    time       0.000 sec
+   real   time       0.001 sec
+
+
+statistics, fd_set_vector_max(255), kenken_testcase_small(N,C), plain_kenken(N,C,T), statistics.
+
+   user   time       0.061 sec
+   system time       0.001 sec
+   cpu    time       0.062 sec
+   real   time       0.062 sec
+
+The test was performed on the 4x4 Kenken problem provided in the spec. As we can see, the plain_kenken has much worse performance than Kenken with the finite domain solver. In fact, the Kenken with finite domain solver finishes the problem almost instantaneously, using only 0.001 sec in real time. On the contrary, the plain_kenken takes around 0.062 sec in real time to finish the problem, so that is at least around 50 times slower performance. 
+
+Test case in spec also duplicated below:
+kenken_testcase_small(
+  4,
+  [
+   +(6, [[1|1], [1|2], [2|1]]),
+   *(96, [[1|3], [1|4], [2|2], [2|3], [2|4]]),
+   -(1, [3|1], [3|2]),
+   -(1, [4|1], [4|2]),
+   +(8, [[3|3], [4|3], [4|4]]),
+   *(2, [[3|4]])
+  ]
+)
+
+
+
+
+
+========= no op kenken API =========
+
+Since there are no operator in this version of kenken, we would have to test for the case of each of the operators along with the value provided. Therefore, the API would be similar to kenken with operators plus the structure dealing with the operators.
+
+
+noop_kenken would accept the following 4 arguments
+
+1. N, a nonnegative integer specifying the number of cells on each side of the KenKen square.
+
+2. C, a list of numeric cage constraints.
+      - Among these constraints we test the constraints with all operators (+ - * /)
+      - At the same time we take into account the number of values in these constraints
+
+3. T, a list of list of integers. All the lists have length N. This represents the N×N grid.
+
+4. R, a list of numeric cage constraints with the respective operators added.
+
+
+For a successful call, T will contain the NxN grid that satisfies all of the constraints described in C. R will also contain the list of constraints described in C but with the respective operator attached to every constraint. There may also be multiple solutions in a no-op kenken puzzle. Once all solutions are depleted, the program will return 'no'.
+
+For an unsuccessful call, the program will fail to populate the T grid. The program will also fail to find the list of constraint with operators for R. The program will immediately return 'no'.
+
+
+
+
+
+========= An example call and behavior =========
+
+noop_kenken_testcase(
+  4,
+  [
+   (6, [[1|1], [1|2], [2|1]]),
+   (96, [[1|3], [1|4], [2|2], [2|3], [2|4]]),
+   (1, [3|1], [3|2]),
+   (1, [4|1], [4|2]),
+   (8, [[3|3], [4|3], [4|4]]),
+   (2, [[3|4]])
+  ]
+).
+
+
+
+Run test case with:
+
+fd_set_vector_max(255), noop_kenken_testcase(N,C), kenken(N,C,T,R).
+
+
+
+
+Should output:
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[1,2,3,4],[3,4,2,1],[4,3,1,2],[2,1,4,3]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[1,2,4,3],[3,4,2,1],[4,3,1,2],[2,1,3,4]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[3,2,4,1],[1,4,2,3],[4,3,1,2],[2,1,3,4]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[2,1,3,4],[3,4,2,1],[4,3,1,2],[1,2,4,3]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[2,1,4,3],[3,4,2,1],[4,3,1,2],[1,2,3,4]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+C = [(6,[[1|1],[1|2],[2|1]]),(96,[[1|3],[1|4],[2|2],[2|3],[2|4]]),(1,[3|1],[3|2]),(1,[4|1],[4|2]),(8,[[3|3],[4|3],[4|4]]),(2,[[3|4]])]
+N = 4
+T = [[3,1,2,4],[2,4,3,1],[4,3,1,2],[1,2,4,3]]
+R = [6+[[1|1],[1|2],[2|1]],96*[[1|3],[1|4],[2|2],[2|3],[2|4]],-(1,[3|1],[3|2]),-(1,[4|1],[4|2]),8+[[3|3],[4|3],[4|4]],2*[[3|4]]] ? ;
+
+
+
+Note that there may be other solutions using a different combination of operators for this puzzle.
