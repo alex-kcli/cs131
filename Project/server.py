@@ -1,4 +1,3 @@
-# https://cs131portserver-314508.wl.r.appspot.com/?uid=205366842
 # Your ports are: 12250 through 12254. Please do not use other ports
 
 import asyncio
