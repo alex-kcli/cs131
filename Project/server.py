@@ -28,6 +28,7 @@ communicates = {
     "Bernard": ["Jaquez", "Juzang", "Campbell"]
 }
 
+api_key = "API_KEY"
 
 def start_log_file(server_name):
     log_file = open(server_name + ".txt", "w")
